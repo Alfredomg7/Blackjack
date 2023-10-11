@@ -41,3 +41,22 @@ class Player:
     def double_down(self):
         # Double the bet on the player's hand
         self.bets[0] *= 2
+    
+    def calculate_hand_value(self, hand_index=0):
+        hand_value = 0
+        has_ace = False
+        for card in self.hands[hand_index]:
+            rank = card[1]
+            if rank in ["J", "Q", "K"]:
+                hand_value += 10
+            elif rank == "A":
+                has_ace = True
+                hands_value += 11
+            else:
+                hand_value += int(rank)
+        
+        if hand_value > 21 and has_ace:
+            hand_value -= 10
+        
+        return hand_value
+
