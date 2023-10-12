@@ -47,9 +47,13 @@ class Blackjack:
 
             # Host's turn
             while self.host.must_hit():
-                new_card = self.deck.hit()
+                new_card = self.hit_card()
                 self.host.hit(new_card)
         
+            # Update player balances based on game outcomes
+            self.update_balances()
+            
+            # Print results after balances have been updated
             self.print_results()
 
     def ask_for_bet(self, player):
@@ -80,6 +84,17 @@ class Blackjack:
         print(f"{player.name}'s hand: ", end="")
         player.print_hand()
         print("\n")
+
+    def update_balances(self):
+        host_value = self.host.calculate_hand_value()
+
+        for player in self.players:
+            player_value = player.calculate_hand_value()
+
+            if host_value > 21 or player_value > host_value:
+                player.balance += 2 * player.bets[0]  # Player earns twice its bet
+            elif player_value == host_value:
+                player.balance += player.bets[0] # Player recover its bet
 
     def is_game_over(self, player):
         return player.calculate_hand_value() >= 21 or self.host.calculate_hand_value() >= 21
