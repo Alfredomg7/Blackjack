@@ -29,3 +29,7 @@ class Deck:
         card_1 = self.deck.pop()
         card_2 = self.deck.pop()
         return card_1, card_2
+    
+    def is_empty(self):
+        # Check if deck list is empty
+        return len(self.deck) == 0

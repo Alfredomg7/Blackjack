@@ -10,33 +10,63 @@ class Blackjack:
 
     def start_game(self):
         print("Welcome to Blackjack!")
-        self.deck.shuffle()
-
-        # Deal initial cards
-        for player in self.players:
-            player.receive_hand(self.deck.deal()[0],self.deck.deal()[1])
-
-        self.host.receive_hand(self.deck.deal()[0],self.deck.deal()[1])
-
-        self.print_initial_hands()
-
-        # Players' turns
-        for player in self.players:
-            while not self.is_game_over(player):
-                action = input(f"{player.name}, do you want to hit or stand? ").lower()
-                if action == "hit":
-                    new_card = self.deck.hit()
-                    player.hit(new_card)
-                    self.print_player_hand(player)
-                elif action == "stand":
-                    break
-
-        # Host's turn
-        while self.host.must_hit():
-            new_card = self.deck.hit()
-            self.host.hit(new_card)
         
-        self.print_results()
+        while self.players:
+            self.deck.shuffle()
+
+            # Ask for best and deal initial cards
+            remaining_players = []
+            for player in self.players:
+                bet = self.ask_for_bet(player)
+                if bet > 0:
+                    player.place_bet(bet)
+                    player.receive_hand(self.deck.deal()[0],self.deck.deal()[1])
+                    remaining_players.append(player)
+                else:
+                    print(f"{player.name} has exited the game.")
+            
+            self.players = remaining_players
+
+            if not self.players:
+                print("All players have exited the game.")
+                break
+
+            self.host.receive_hand(self.deck.deal()[0],self.deck.deal()[1])
+            self.print_initial_hands()
+
+            # Players' turns
+            for player in self.players:
+                while not self.is_game_over(player):
+                    action = input(f"{player.name}, do you want to hit or stand? ").lower()
+                    if action == "hit":
+                        new_card = self.hit_card()
+                        player.hit(new_card)
+                        self.print_player_hand(player)
+                    elif action == "stand":
+                        break
+
+            # Host's turn
+            while self.host.must_hit():
+                new_card = self.deck.hit()
+                self.host.hit(new_card)
+        
+            self.print_results()
+
+    def ask_for_bet(self, player):
+        while True:
+            bet = input(f"{player.name}, how much do you want to bet? (0 to exit):")
+            if bet.isdigit() and 0 <= int(bet) <= player.balance:
+                return int(bet)
+            else:
+                print(f"Invalid bet. Please enter a number between 0 and {player.balance}.")
+
+    def hit_card(self):
+        if self.deck.is_empty():
+            print("New deck is being used")
+            self.deck = Deck()
+            self.deck.shuffle()
+        
+        return self.deck.hit()
 
     def print_initial_hands(self):
         for player in self.players:

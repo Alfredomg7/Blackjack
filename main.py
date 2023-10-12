@@ -24,19 +24,21 @@ def main():
     try:
         # Get the number of players from user input
         num_players = int(input("Enter the number of players: "))
-        
-        if num_players < 1 or num_players > 6:
-            print("Number of players must be between 1 and 6.")
-        else:
-            # Get player names and initial balance
-            player_names = get_player_names(num_players)
-            initial_balance = get_initial_balance()
-            
-            # Create a Blackjack game instance and start the game
-            blackjack = Blackjack(player_names,initial_balance)
-            blackjack.start_game()
+    
     except:
-        print("Invalid input. Please enter a valid integer.")
+        print("Invalid input. Please enter a valid integer.")  
+
+    if num_players < 1 or num_players > 6:
+            print("Number of players must be between 1 and 6.")
+    else:
+        # Get player names and initial balance
+        player_names = get_player_names(num_players)
+        initial_balance = get_initial_balance()
+            
+        # Create a Blackjack game instance and start the game
+        blackjack = Blackjack(player_names,initial_balance)
+        blackjack.start_game()
+    
 
 if __name__ == "__main__":
     main()

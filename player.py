@@ -51,7 +51,7 @@ class Player:
                 hand_value += 10
             elif rank == "A":
                 has_ace = True
-                hands_value += 11
+                hand_value += 11
             else:
                 hand_value += int(rank)
         
