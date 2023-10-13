@@ -12,6 +12,7 @@ class Blackjack:
         print("Welcome to Blackjack!")
         
         while self.players:
+            self.reset_for_new_round()
             self.deck.shuffle()
 
             # Ask for best and deal initial cards
@@ -96,6 +97,12 @@ class Blackjack:
             elif player_value == host_value:
                 player.balance += player.bets[0] # Player recover its bet
 
+    def reset_for_new_round(self):
+        for player in self.players:
+            player.hands = [[]]
+            player.bets = [0]
+        self.host.hands = [[]]
+    
     def is_game_over(self, player):
         return player.calculate_hand_value() >= 21 or self.host.calculate_hand_value() >= 21
 
