@@ -9,9 +9,10 @@ class Blackjack:
         self.deck = Deck()
 
     def start_game(self):
-        print("Welcome to Blackjack!")
+        print("Welcome to Blackjack!\n")
         
         while self.players:
+            print("-" * 40)
             self.reset_for_new_round()
             self.deck.shuffle()
 
@@ -41,6 +42,7 @@ class Blackjack:
             for player in self.players:
                 while not self.is_game_over(player):
                     action = input(f"{player.name}, do you want to hit or stand? ").lower()
+                    print("\n")
                     if action == "hit":
                         new_card = self.hit_card()
                         player.hit(new_card)
@@ -52,6 +54,7 @@ class Blackjack:
             while self.host.must_hit():
                 new_card = self.hit_card()
                 self.host.hit(new_card)
+            print("\n")
         
             # Update player balances based on game outcomes
             self.update_balances()
@@ -62,6 +65,7 @@ class Blackjack:
     def ask_for_bet(self, player):
         while True:
             bet = input(f"{player.name}, how much do you want to bet? (0 to exit): ")
+            print("\n")
             if bet.isdigit() and 0 <= int(bet) <= player.balance:
                 return int(bet)
             else:
@@ -94,7 +98,7 @@ class Blackjack:
         for player in self.players:
             player_value = player.calculate_hand_value()
 
-            if host_value > 21 or player_value > host_value:
+            if host_value > 21 or (player_value > host_value and player_value < 22):
                 player.balance += 2 * player.bets[0]  # Player earns twice its bet
             elif player_value == host_value:
                 player.balance += player.bets[0] # Player recover its bet
@@ -115,6 +119,7 @@ class Blackjack:
 
         print(f"{self.host.name}'s hand: ", end="")
         self.host.print_hand()
+        print("\n")
 
         host_value = self.host.calculate_hand_value()
 
@@ -130,6 +135,8 @@ class Blackjack:
                 print(f"{self.host.name} wins!")
             else:
                 print(f"{player.name} and {self.host.name} tie!")
+            
+            print(f"{player.name}'s balance: ${player.balance}\n")
 
 
 
