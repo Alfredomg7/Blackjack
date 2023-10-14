@@ -17,38 +17,43 @@ class Blackjack:
             self.deck.shuffle()
 
             # Ask for best and deal initial cards
-            remaining_players = []
+            active_players = []
             for player in self.players:
                 bet = self.ask_for_bet(player)
+
+                if bet is None:
+                    continue
+                
                 if bet > 0:
                     player.place_bet(bet)
                     card_1, card_2 = self.deck.deal()
                     player.receive_hand(card_1,card_2)
-                    remaining_players.append(player)
+                    active_players.append(player)
                 else:
-                    print(f"{player.name} has exited the game.")
-            
-            self.players = remaining_players
+                    print(f"{player.name} is skipping this round.\n")
 
-            if not self.players:
-                print("All players have exited the game.")
-                break
+            if not active_players:
+                print("No active players for this round.\n")
+                continue
 
             card_1, card_2 = self.deck.deal()
             self.host.receive_hand(card_1, card_2)
             self.print_initial_hands()
 
             # Players' turns
-            for player in self.players:
+            for player in active_players:
                 while not self.is_game_over(player):
-                    action = input(f"{player.name}, do you want to hit or stand? ").lower()
+                    action = input(f"{player.name}, do you want to hit (h) or stand (s)? ").lower()
                     print("\n")
-                    if action == "hit":
+                    if action == "h":
                         new_card = self.hit_card()
                         player.hit(new_card)
                         self.print_player_hand(player)
-                    elif action == "stand":
+                    elif action == "s":
                         break
+                    else:
+                        print("Invalid option. Please enter 'h' for hit or 's' for stand.")
+
 
             # Host's turn
             while self.host.must_hit():
@@ -63,6 +68,10 @@ class Blackjack:
             self.print_results()
 
     def ask_for_bet(self, player):
+        if player.balance == 0:
+            print(f"{player.name} has exited the game due to insufficient funds.\n")
+            return None
+    
         while True:
             bet = input(f"{player.name}, how much do you want to bet? (0 to exit): ")
             print("\n")
