@@ -21,7 +21,8 @@ class Blackjack:
                 bet = self.ask_for_bet(player)
                 if bet > 0:
                     player.place_bet(bet)
-                    player.receive_hand(self.deck.deal()[0],self.deck.deal()[1])
+                    card_1, card_2 = self.deck.deal()
+                    player.receive_hand(card_1,card_2)
                     remaining_players.append(player)
                 else:
                     print(f"{player.name} has exited the game.")
@@ -32,7 +33,8 @@ class Blackjack:
                 print("All players have exited the game.")
                 break
 
-            self.host.receive_hand(self.deck.deal()[0],self.deck.deal()[1])
+            card_1, card_2 = self.deck.deal()
+            self.host.receive_hand(card_1, card_2)
             self.print_initial_hands()
 
             # Players' turns
@@ -59,7 +61,7 @@ class Blackjack:
 
     def ask_for_bet(self, player):
         while True:
-            bet = input(f"{player.name}, how much do you want to bet? (0 to exit):")
+            bet = input(f"{player.name}, how much do you want to bet? (0 to exit): ")
             if bet.isdigit() and 0 <= int(bet) <= player.balance:
                 return int(bet)
             else:

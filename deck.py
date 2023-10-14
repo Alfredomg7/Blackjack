@@ -25,6 +25,12 @@ class Deck:
         return self.deck.pop()
     
     def deal(self):
+        # Ensure there are at least 2 cards to deal
+        while self.is_empty():
+            print("New Deck is being used")
+            self.__init__()
+            self.shuffle()       
+
         # Deal two cards (as a tuple) from the top of the deck
         card_1 = self.deck.pop()
         card_2 = self.deck.pop()
@@ -32,4 +38,4 @@ class Deck:
     
     def is_empty(self):
         # Check if deck list is empty
-        return len(self.deck) == 0
+        return len(self.deck) < 2
