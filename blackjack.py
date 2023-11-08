@@ -16,13 +16,18 @@ class Blackjack:
             self.reset_for_new_round()
             self.deck.shuffle()
 
+            # Check for active players with a positive balance
+            if not any(player.balance > 0 for player in self.players):
+                print("All players have insufficient funds to continue. Game over.")
+                break
+
             # Ask for best and deal initial cards
             active_players = []
-            for player in self.players:
+            for player in self.players[:]: # Iterate over a copy of self.players
                 bet = self.ask_for_bet(player)
 
                 if bet is None:
-                    continue
+                    continue # This player was removed, move to the next player
                 
                 if bet > 0:
                     player.place_bet(bet)
@@ -70,6 +75,7 @@ class Blackjack:
     def ask_for_bet(self, player):
         if player.balance == 0:
             print(f"{player.name} has exited the game due to insufficient funds.\n")
+            self.players.remove(player)
             return None
     
         while True:
