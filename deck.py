@@ -18,7 +18,7 @@ class Deck:
     
     def __repr__(self):
         # Return a string representation of the deck
-        return ' '.join(f"{card[1]}{card[0]}" for card in self.deck) + "\n\n"
+        return ' '.join(f"{card.suit}{card.rank}" for card in self.deck) + "\n\n"
     
     def shuffle(self):
         # Shuffle the deck using the random.shuffle() function
@@ -47,3 +47,8 @@ class Deck:
         # Reinitialize the deck to a full deck of 52 cards and shuffle
         self.deck = [Card(suit, rank) for suit in Deck.SUITS for rank in Deck.RANKS]
         self.shuffle()
+
+
+if __name__ == "__main__":
+    deck = Deck()
+    print(deck)
