@@ -1,19 +1,24 @@
 import random
+from collections import namedtuple
+
+# Define a namedtuple for card representation
+Card = namedtuple('Card', ['suit', 'rank'])
 
 class Deck:
     # Define the suits and face cards for a standard deck
-    suits = ["♣","♦","♥","♠"]
-    face_cards = ["A","J","Q","K"]
+    SUITS = ["♣", "♦", "♥", "♠"]
+    FACE_CARDS = ["A", "J", "Q", "K"]
+    RANKS = list(map(str, range(2, 11))) + FACE_CARDS  # Ranks now include number and face cards
+    MIN_RANK = 2  # Minimum rank value for cards
+    MAX_RANK = 11  # Maximum rank value for cards, assuming Ace counts as 11 initially
     
     def __init__(self):
         # Create and shuffle a new deck of cards
         self.reinitialize_deck()
     
-    def print_deck(self):
-        # Print each card in the deck
-        for card in self.deck:
-            print(f"{card[1]}{card[0]}", end=" ")
-        print("\n\n")
+    def __repr__(self):
+        # Return a string representation of the deck
+        return ' '.join(f"{card[1]}{card[0]}" for card in self.deck) + "\n\n"
     
     def shuffle(self):
         # Shuffle the deck using the random.shuffle() function
@@ -33,13 +38,12 @@ class Deck:
         card_1 = self.deck.pop()
         card_2 = self.deck.pop()
         return card_1, card_2
-    
-    def reinitialize_deck(self):
-        # Reinitialize the deck to a full deck of 52 cards and then shuffle
-        self.deck = [(suit, str(rank)) for suit in self.suits for rank in range(2, 11)] + \
-                    [(suit, face) for suit in self.suits for face in self.face_cards]
-        self.shuffle()
 
     def is_empty(self):
         # Check if deck list is empty
         return len(self.deck) < 2
+    
+    def reinitialize_deck(self):
+        # Reinitialize the deck to a full deck of 52 cards and shuffle
+        self.deck = [Card(suit, rank) for suit in Deck.SUITS for rank in Deck.RANKS]
+        self.shuffle()
