@@ -93,7 +93,6 @@ class Blackjack:
                     break
 
         self.host_turn()
-        self.update_balances()
 
     def get_player_action(self, player):
         while True:
@@ -146,13 +145,26 @@ class Blackjack:
         for player in self.active_players:
             player_value = player.calculate_hand_value()
 
-            # Player wins and earns twice their bet
-            if (player_value <= 21 and host_value > 21) or (player_value > host_value and player_value <= 21):
+            # Player busts
+            if player_value > 21:
+                pass
+
+            # Host busts
+            elif host_value > 21:
                 player.balance += player.bets[0] * 2
-            # It's a tie, player recovers their bet
-            elif player_value == host_value:
-                player.balance += player.bets[0]
-            # Player loses, no change to balance as the bet is already deducted
+            
+            # Both player and host are under or equal 21
+            else:
+                # Player wins
+                if player_value > host_value:
+                    player.balance += player.bets[0] * 2
+                # Host wins
+                elif player_value < host_value:
+                    pass
+                # Tie
+                elif player_value == host_value:
+                    player.balance += player.bets[0] 
+            
 
             # Reset the player's bet for the next round
             player.reset_bet()
