@@ -30,6 +30,12 @@ class Player:
         # Receive the initial hand of cards
         self.hands[0].append(card_1)
         self.hands[0].append(card_2)
+    
+    def reset_hand(self):
+        self.hands = [[]]
+
+    def reset_bet(self):
+        self.bet = [0]
 
     def split(self):
         # Split a hand into two hands, adding a new hand and duplicating the bet
