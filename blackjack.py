@@ -143,8 +143,7 @@ class Blackjack:
     def hit_card(self):
         if self.deck.is_empty():
             print(NEW_DECK_MESSAGE)
-            self.deck = Deck()
-            self.deck.shuffle()
+            self.deck.reinitialize_deck()
         
         return self.deck.hit()
 

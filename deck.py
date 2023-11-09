@@ -1,14 +1,13 @@
 import random
 
 class Deck:
-
     # Define the suits and face cards for a standard deck
     suits = ["♣","♦","♥","♠"]
     face_cards = ["A","J","Q","K"]
     
     def __init__(self):
-        # Create a deck of cards using list comprehensions
-        self.deck = [(suit, str(rank)) for suit in self.suits for rank in range(2, 11)] + [(suit, face) for suit in self.suits for face in self.face_cards]
+        # Create and shuffle a new deck of cards
+        self.reinitialize_deck()
     
     def print_deck(self):
         # Print each card in the deck
@@ -28,14 +27,19 @@ class Deck:
         # Ensure there are at least 2 cards to deal
         while self.is_empty():
             print("New Deck is being used")
-            self.__init__()
-            self.shuffle()       
+            self.reinitialize_deck()
 
         # Deal two cards (as a tuple) from the top of the deck
         card_1 = self.deck.pop()
         card_2 = self.deck.pop()
         return card_1, card_2
     
+    def reinitialize_deck(self):
+        # Reinitialize the deck to a full deck of 52 cards and then shuffle
+        self.deck = [(suit, str(rank)) for suit in self.suits for rank in range(2, 11)] + \
+                    [(suit, face) for suit in self.suits for face in self.face_cards]
+        self.shuffle()
+
     def is_empty(self):
         # Check if deck list is empty
         return len(self.deck) < 2
