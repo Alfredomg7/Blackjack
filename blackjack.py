@@ -2,6 +2,25 @@ from deck import Deck
 from player import Player
 from host import Host
 
+# Constants
+WELCOME_MESSAGE = "Welcome to Blackjack!\n"
+GAME_OVER_NO_FUNDS_MESSAGE = "No players with funds left to play. Game over."
+NO_ACTIVE_PLAYERS_MESSAGE = "No active players for this round.\n"
+SKIP_ROUND_MESSAGE = "{} is skipping this round.\n"
+INSUFFICIENT_FUNDS_MESSAGE = "{} cannot play due to insufficient funds.\n"
+NEW_DECK_MESSAGE = "New deck is being used"
+INVALID_OPTION_MESSAGE = "Invalid option. Please enter 'h' for hit or 's' for stand."
+INVALID_BET_MESSAGE = "Invalid bet. Please enter a number between 0 and {}."
+INVALID_INPUT_MESSAGE = "Invalid input. Please enter a number."
+EXIT_DUE_TO_FUNDS_MESSAGE = "{} has exited the game due to insufficient funds.\n"
+PLAYER_BUSTS_MESSAGE = "{} busts! {} wins."
+PLAYER_WINS_MESSAGE = "{} wins!"
+TIE_MESSAGE = "{} and {} tie!"
+PLAYER_BALANCE_MESSAGE = "{}'s balance: ${}\n"
+HOST_HAND_MESSAGE = "{}'s hand: {} ?\n"
+HIT_ACTION = "h"
+STAND_ACTION = "s"
+
 class Blackjack:
     def __init__(self, player_names, initial_balance):
         self.players = [Player(name, initial_balance) for name in player_names]
@@ -15,9 +34,6 @@ class Blackjack:
         while self.any_player_with_funds():
             # Remove players with zero balance before starting a new round
             self.players = [player for player in self.players if player.balance > 0]
-            if not self.players:
-                print("No players with funds left to play. Game over.")
-                break
             
             self.reset_for_new_round()
             self.handle_bets_and_dealing()
@@ -25,7 +41,7 @@ class Blackjack:
 
             # Check if there are active players after handling bets
             if not self.active_players:
-                print("No active players for this round.\n")
+                print(NO_ACTIVE_PLAYERS_MESSAGE)
                 continue
         
             # Update player balances based on game outcomes
@@ -33,12 +49,14 @@ class Blackjack:
             
             # Print results after balances have been updated
             self.print_results()
+        
+        print(GAME_OVER_NO_FUNDS_MESSAGE)
 
     def any_player_with_funds(self):
         return any(player.balance > 0 for player in self.players)
 
     def print_welcome_message(self):
-        print("Welcome to Blackjack!\n")
+        print(WELCOME_MESSAGE)
 
     def print_insufficient_funds_message(self):
         print("All players have insufficient funds to continue. Game over.")
@@ -57,12 +75,12 @@ class Blackjack:
                     player.receive_hand(card_1, card_2)
                     self.active_players.append(player)
                 else:
-                    print(f"{player.name} is skipping this round.\n")
+                    print(SKIP_ROUND_MESSAGE.format(player.name))
             else:
-                print(f"{player.name} cannot play due to insufficient funds.\n")
+                print(INSUFFICIENT_FUNDS_MESSAGE.format(player.name))
 
         if not self.active_players:
-            print("No active players for this round.\n")
+            print(NO_ACTIVE_PLAYERS_MESSAGE)
             return  # Early exit if no players are active for this round
 
         # Deal to the host last
@@ -83,33 +101,32 @@ class Blackjack:
     def play_round(self):
         # Players' turns
         for player in self.active_players:
-            while not self.is_game_over(player):
+            while not self.is_turn_over(player):
                 action = self.get_player_action(player)
-                if action == "h":
+                if action == HIT_ACTION:
                     new_card = self.hit_card()
                     player.hit(new_card)
                     player.print_hand()
-                elif action == "s":
+                elif action == STAND_ACTION:
                     break
 
         self.host_turn()
 
     def get_player_action(self, player):
         while True:
-            action = input(f"{player.name}, do you want to hit (h) or stand (s)? ").lower()
-            if action in ["h", "s"]:
+            action = input(f"{player.name}, do you want to hit ({HIT_ACTION}) or stand ({STAND_ACTION})? ").lower()
+            if action in [HIT_ACTION, STAND_ACTION]:
                 return action
-            print("Invalid option. Please enter 'h' for hit or 's' for stand.")
+            print(INVALID_OPTION_MESSAGE)
     
     def host_turn(self):
         while self.host.must_hit():
             new_card = self.deck.hit()
             self.host.hit(new_card)
-            self.host.print_hand()
 
     def ask_for_bet(self, player):
         if player.balance == 0:
-            print(f"{player.name} has exited the game due to insufficient funds.\n")
+            print(EXIT_DUE_TO_FUNDS_MESSAGE.format(player.name))
             self.players.remove(player)
             return None
     
@@ -119,13 +136,13 @@ class Blackjack:
                 if 0 <= bet <= player.balance:
                     return bet
                 else:
-                    print(f"Invalid bet. Please enter a number between 0 and {player.balance}.")
+                    print(INVALID_BET_MESSAGE.format(player.balance))
             except ValueError:
-                print("Invalid input. Please enter a number.")
+                print(INVALID_INPUT_MESSAGE)
 
     def hit_card(self):
         if self.deck.is_empty():
-            print("New deck is being used")
+            print(NEW_DECK_MESSAGE)
             self.deck = Deck()
             self.deck.shuffle()
         
@@ -169,15 +186,16 @@ class Blackjack:
             # Reset the player's bet for the next round
             player.reset_bet()
     
-    def is_game_over(self, player):
-        return player.calculate_hand_value() > 21
+    def is_turn_over(self, player):
+        hand_value = player.calculate_hand_value()
+        return hand_value >= 21
 
     def print_results(self):
         for player in self.players:
             print(f"{player.name}'s hand: ", end="")
             player.print_hand()
 
-        print(f"{self.host.name}'s hand: ", end="")
+        print(HOST_HAND_MESSAGE.format(self.host.name, self.host.hands[0][0][1] + self.host.hands[0][0][0]), end="")
         self.host.print_hand()
         print("\n")
 
@@ -186,17 +204,17 @@ class Blackjack:
         for player in self.players:
             player_value = player.calculate_hand_value()
             if player_value > 21:
-                print(f"{player.name} busts! {self.host.name} wins.")
+                print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
             elif host_value > 21:
-                print(f"{self.host.name} busts! {player.name} wins.")
+                print(PLAYER_WINS_MESSAGE.format(player.name))
             elif player_value > host_value:
-                print(f"{player.name} wins!")
+                print(PLAYER_WINS_MESSAGE.format(player.name))
             elif player_value < host_value:
-                print(f"{self.host.name} wins!")
+                print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
             else:
-                print(f"{player.name} and {self.host.name} tie!")
+                print(TIE_MESSAGE.format(player.name, self.host.name))
             
-            print(f"{player.name}'s balance: ${player.balance}\n")
+            print(PLAYER_BALANCE_MESSAGE.format(player.name, player.balance))
 
 
 
