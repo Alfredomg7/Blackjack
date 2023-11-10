@@ -50,19 +50,21 @@ class Player:
     
     def calculate_hand_value(self, hand_index=0):
         hand_value = 0
-        has_ace = False
+        aces_count = 0
+
         for card in self.hands[hand_index]:
-            rank = card[1]
+            rank = card.rank
             if rank in ["J", "Q", "K"]:
                 hand_value += 10
             elif rank == "A":
-                has_ace = True
+                aces_count += 1
                 hand_value += 11
             else:
                 hand_value += int(rank)
         
-        if hand_value > 21 and has_ace:
+        # Adjust for Aces if the hand value is over 21
+        while hand_value > 21 and aces_count > 0:
             hand_value -= 10
+            aces_count -= 1
         
         return hand_value
-
