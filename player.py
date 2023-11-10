@@ -7,11 +7,11 @@ class Player:
         self.bets = [0]  # Initialize player bets as a list
 
     def print_hand(self):
-        # Print each card in the player's hand(s)
-        for hand in self.hands:
-            for card in hand:
-                print(f"{card[1]}{card[0]}", end=" ")
-            print("\n")
+        # Prints each hand of the player along with its total value
+        for index, hand in enumerate(self.hands):
+            hand_representation = ' '.join(f"{card.rank}{card.suit}" for card in hand)
+            hand_value = self.calculate_hand_value(hand_index=index)
+            print(f"Hand {index + 1}: {hand_representation} (Total Value: {hand_value})")
 
     def place_bet(self, amount, hand_index=0):
         # Place a bet on a specific hand if the player has enough balance
