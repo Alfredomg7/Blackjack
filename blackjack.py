@@ -34,21 +34,14 @@ class Blackjack:
         while self.any_player_with_funds():
             # Remove players with zero balance before starting a new round
             self.players = [player for player in self.players if player.balance > 0]
-            
             self.reset_for_new_round()
-            self.handle_bets_and_dealing()
-            self.play_round()
-
-            # Check if there are active players after handling bets
-            if not self.active_players:
-                print(NO_ACTIVE_PLAYERS_MESSAGE)
-                continue
-        
-            # Update player balances based on game outcomes
-            self.update_balances()
+            print("-" * 40)
             
-            # Print results after balances have been updated
-            self.print_results()
+            if self.handle_bets():
+                self.deal_initial_cards()
+                self.play_round()
+                self.update_balances()
+                self.print_results()
         
         print(GAME_OVER_NO_FUNDS_MESSAGE)
 
@@ -61,18 +54,13 @@ class Blackjack:
     def print_insufficient_funds_message(self):
         print("All players have insufficient funds to continue. Game over.")
     
-    def handle_bets_and_dealing(self):
-        print("-" * 40)
-
+    def handle_bets(self):
         self.active_players = []  # Reset the list of active players for the new round
-
         for player in self.players[:]:  # Iterate over a copy of self.players
             if player.balance > 0:
                 bet = self.ask_for_bet(player)
                 if bet > 0:
                     player.place_bet(bet)
-                    card_1, card_2 = self.deck.deal()
-                    player.receive_hand(card_1, card_2)
                     self.active_players.append(player)
                 else:
                     print(SKIP_ROUND_MESSAGE.format(player.name))
@@ -81,7 +69,14 @@ class Blackjack:
 
         if not self.active_players:
             print(NO_ACTIVE_PLAYERS_MESSAGE)
-            return  # Early exit if no players are active for this round
+            return  False 
+        
+        return True
+    
+    def deal_initial_cards(self):
+        for player in self.active_players:
+            card_1, card_2 = self.deck.deal()
+            player.receive_hand(card_1, card_2)
 
         # Deal to the host last
         host_card_1, host_card_2 = self.deck.deal()
