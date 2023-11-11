@@ -11,7 +11,7 @@ class Player:
         for index, hand in enumerate(self.hands):
             hand_representation = ' '.join(f"{card.rank}{card.suit}" for card in hand)
             hand_value = self.calculate_hand_value(hand_index=index)
-            print(f"Hand {index + 1}: {hand_representation} (Total Value: {hand_value})")
+            print(f"Hand {index + 1}: {hand_representation} (Hand Value: {hand_value})")
 
     def place_bet(self, amount, hand_index=0):
         # Place a bet on a specific hand if the player has enough balance
@@ -44,10 +44,20 @@ class Player:
         self.hands.append(new_hand)
         self.bets.append(new_bet)
 
-    def double_down(self):
-        # Double the bet on the player's hand
-        self.bets[0] *= 2
-    
+    def can_double_down(self, hand_index=0):
+        # Check if the hand has exactly two cards of the same rank
+        if len(self.hands[hand_index]) == 2 and self.hands[hand_index][0].rank == self.hands[hand_index][1].rank:
+            return True
+        return False
+
+    def double_down(self, hand_index=0):
+        # Double the bet on the player's hand if the balance allows
+        if self.balance >= self.bets[hand_index]:
+            self.balance -= self.bets[hand_index]
+            self.bets[hand_index] *= 2
+            return True
+        return False
+
     def calculate_hand_value(self, hand_index=0):
         hand_value = 0
         aces_count = 0

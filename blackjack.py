@@ -96,6 +96,11 @@ class Blackjack:
     def play_round(self):
         # Players' turns
         for player in self.active_players:
+            # Check and offer double down
+            if player.can_double_down():
+                if self.offer_double_down(player):
+                    continue
+
             while not self.is_turn_over(player):
                 action = self.get_player_action(player)
                 if action == HIT_ACTION:
@@ -106,6 +111,30 @@ class Blackjack:
                     break
 
         self.host_turn()
+
+    def offer_double_down(self, player):
+        while True:
+            try:
+                response = input(f"{player.name}, Do you want to Double Down? (yes/no): ").strip().lower()
+                if response not in ["yes", "no"]:
+                    raise ValueError("Please answer with 'yes' or 'no'.")
+
+                if response == "yes":
+                    if player.double_down():
+                        print(f"{player.name} has doubled down.")
+                        new_card = self.hit_card()
+                        player.hit(new_card)
+                        player.print_hand()
+                        return True
+                    else:
+                        print("Insufficient funds to double down.")
+                        return False
+
+                if response == "no":
+                    return False
+
+            except ValueError as e:
+                print(e)
 
     def get_player_action(self, player):
         while True:
