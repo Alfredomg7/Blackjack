@@ -4,7 +4,7 @@ from host import Host
 
 # Constants
 WELCOME_MESSAGE = "Welcome to Blackjack!\n"
-GAME_OVER_NO_FUNDS_MESSAGE = "No players with funds left to play. Game over."
+GAME_OVER_NO_FUNDS_MESSAGE = "All players have insufficient funds to continue. Game over."
 NO_ACTIVE_PLAYERS_MESSAGE = "No active players for this round.\n"
 SKIP_ROUND_MESSAGE = "{} is skipping this round.\n"
 INSUFFICIENT_FUNDS_MESSAGE = "{} cannot play due to insufficient funds.\n"
@@ -20,6 +20,7 @@ PLAYER_BALANCE_MESSAGE = "{}'s balance: ${}\n"
 HOST_HAND_MESSAGE = "{}'s hand: {} ?\n"
 HIT_ACTION = "h"
 STAND_ACTION = "s"
+DOUBLE_DOWN_NO_FUNDS_MESSAGE = "Insufficient funds to double down."
 
 class Blackjack:
     def __init__(self, player_names, initial_balance):
@@ -52,7 +53,7 @@ class Blackjack:
         print(WELCOME_MESSAGE)
 
     def print_insufficient_funds_message(self):
-        print("All players have insufficient funds to continue. Game over.")
+        print(GAME_OVER_NO_FUNDS_MESSAGE)
     
     def handle_bets(self):
         self.active_players = []  # Reset the list of active players for the new round
@@ -120,14 +121,15 @@ class Blackjack:
                     raise ValueError("Please answer with 'yes' or 'no'.")
 
                 if response == "yes":
-                    if player.double_down():
+                    if player.can_double_down():
+                        player.double_down()
                         print(f"{player.name} has doubled down.")
                         new_card = self.hit_card()
+                        print("\n")
                         player.hit(new_card)
-                        player.print_hand()
                         return True
                     else:
-                        print("Insufficient funds to double down.")
+                        print(DOUBLE_DOWN_NO_FUNDS_MESSAGE)
                         return False
 
                 if response == "no":
