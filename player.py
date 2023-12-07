@@ -37,27 +37,29 @@ class Player:
     def reset_bet(self):
         self.bet = [0]
 
-    def split(self):
-        # Split a hand into two hands, adding a new hand and duplicating the bet
-        new_hand = self.hands[0].pop()
-        new_bet = self.bets[0]
-        self.hands.append(new_hand)
-        self.bets.append(new_bet)
+    def split(self, hand_index=0):
+        # Perform a split if the hand can be split
+        if self.can_split(hand_index):
+            new_hand = self.hands[hand_index].pop(0)
+            new_bet = self.bets[hand_index]
+            self.hands.append(new_hand)
+            self.bets.append(new_bet)
 
-    def can_double_down(self, hand_index=0):
+    def can_split(self, hand_index=0):
         # Check if the hand has exactly two cards of the same rank
-        if len(self.hands[hand_index]) == 2 and self.hands[hand_index][0].rank == self.hands[hand_index][1].rank:
-            return True
-        return False
+        return (len(self.hands[hand_index]) == 2 and 
+                self.hands[hand_index][0].rank == self.hands[hand_index][1].rank)
 
     def double_down(self, hand_index=0):
         # Double the bet on the player's hand if the balance allows
-        if self.balance >= self.bets[hand_index]:
+        if self.can_double_down(hand_index):
             self.balance -= self.bets[hand_index]
             self.bets[hand_index] *= 2
-            return True
-        return False
-
+            
+    def can_double_down(self, hand_index=0):
+        # Check if balance is enought to double down
+        return self.balance >= self.bets[hand_index]
+            
     def calculate_hand_value(self, hand_index=0):
         hand_value = 0
         aces_count = 0
