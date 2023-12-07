@@ -20,7 +20,6 @@ PLAYER_BALANCE_MESSAGE = "{}'s balance: ${}\n"
 HOST_HAND_MESSAGE = "{}'s hand: {} ?\n"
 HIT_ACTION = "h"
 STAND_ACTION = "s"
-DOUBLE_DOWN_NO_FUNDS_MESSAGE = "Insufficient funds to double down."
 
 class Blackjack:
     def __init__(self, player_names, initial_balance):
@@ -121,16 +120,12 @@ class Blackjack:
                     raise ValueError("Please answer with 'yes' or 'no'.")
 
                 if response == "yes":
-                    if player.can_double_down():
-                        player.double_down()
-                        print(f"{player.name} has doubled down.")
-                        new_card = self.hit_card()
-                        print("\n")
-                        player.hit(new_card)
-                        return True
-                    else:
-                        print(DOUBLE_DOWN_NO_FUNDS_MESSAGE)
-                        return False
+                    player.double_down()
+                    print(f"{player.name} has doubled down.")
+                    new_card = self.hit_card()
+                    print("\n")
+                    player.hit(new_card)
+                    return True
 
                 if response == "no":
                     return False
