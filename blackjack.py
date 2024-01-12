@@ -135,6 +135,7 @@ class Blackjack:
         
             # Regular play if no split or double down
             self.play_hand(player)
+
         self.host_turn()
 
     def play_hand(self, player, hand_index=0):
@@ -143,7 +144,7 @@ class Blackjack:
             if action == HIT_ACTION:
                 self.handle_hit(player, hand_index)
             elif action == STAND_ACTION:
-                print("\n")
+                self.handle_stand(player, hand_index)
                 break
 
     def offer_double_down(self, player):
@@ -198,6 +199,10 @@ class Blackjack:
             print(f"{player.name}'s hand: {player.print_hand(hand_index)}")
             print("\n")
     
+    def handle_stand(self, player, hand_index=0):
+        print(f"{player.name}'s hand: {player.print_hand(hand_index)}")
+        print("\n")
+
     def host_turn(self):
         while self.host.must_hit():
             new_card = self.deck.hit()
