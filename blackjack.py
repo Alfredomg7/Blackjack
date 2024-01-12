@@ -18,8 +18,8 @@ EXIT_DUE_TO_FUNDS_MESSAGE = "{} has exited the game due to insufficient funds.\n
 PLAYER_BUSTS_MESSAGE = "{} busts! {} wins."
 PLAYER_WINS_MESSAGE = "{} wins!"
 TIE_MESSAGE = "{} and {} tie!"
-PLAYER_BALANCE_MESSAGE = "{}'s balance: ${}\n"
-HOST_HAND_MESSAGE = "{}'s hand: {} ?\n"
+PLAYER_BALANCE_MESSAGE = "{}'s balance: ${}"
+HOST_HAND_MESSAGE = "{}'s hand: {} ?"
 HIT_ACTION = "h"
 STAND_ACTION = "s"
 SEPARATOR = "-" * 40
@@ -30,6 +30,7 @@ class Blackjack:
         self.host = Host()
         self.deck = Deck()
         self.active_players = []
+        self.round_number = 0
 
     def start_game(self):
         self.print_welcome_message()
@@ -37,11 +38,28 @@ class Blackjack:
         print("\n")
         
         while self.any_player_with_funds():
-            # Remove players with zero balance before starting a new round
-            self.players = [player for player in self.players if player.balance > 0]
-            self.reset_for_new_round()
+            self.round_number += 1
+            print(f"Round {self.round_number}:")
+
+            # Create a new list for eligible players (those with funds)
+            eligible_players = []
+            for player in self.players:
+                if player.balance > 0:
+                    print(PLAYER_BALANCE_MESSAGE.format(player.name, player.balance))
+                    eligible_players.append(player)
+                else:
+                    print(EXIT_DUE_TO_FUNDS_MESSAGE.format(player.name))
             
             print(SEPARATOR)
+            
+            # Update the list of players with those who are eligible
+            self.players = eligible_players
+
+            # If no eligible players remain, break the loop
+            if not self.players:
+                break
+    
+            self.reset_for_new_round()
 
             if self.handle_bets():
                 self.deal_initial_cards()
@@ -171,7 +189,7 @@ class Blackjack:
 
     def get_player_action(self, player):
         while True:
-            action = input(f"{player.name}, do you want to hit ({HIT_ACTION}) or stand ({STAND_ACTION})? ").lower()
+            action = input(f"{player.name}, do you want to hit ({HIT_ACTION}) or stand ({STAND_ACTION})?: ").lower()
             if action in [HIT_ACTION, STAND_ACTION]:
                 return action
             print(INVALID_OPTION_MESSAGE)
@@ -264,5 +282,3 @@ class Blackjack:
                 print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
             else:
                 print(TIE_MESSAGE.format(player.name, self.host.name))
-            
-            print(PLAYER_BALANCE_MESSAGE.format(player.name, player.balance))
