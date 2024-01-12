@@ -5,6 +5,7 @@ from host import Host
 # Constants
 WELCOME_MESSAGE = "Welcome to Blackjack!"
 DEAL_CARDS_MESSAGE = "Dealing cards..."
+DRAW_CARD_MESSAGE = "Drawing card..."
 GAME_OVER_NO_FUNDS_MESSAGE = "All players have insufficient funds to continue. Game over."
 NO_ACTIVE_PLAYERS_MESSAGE = "No active players for this round.\n"
 SKIP_ROUND_MESSAGE = "{} is skipping this round.\n"
@@ -134,33 +135,28 @@ class Blackjack:
         
             # Regular play if no split or double down
             self.play_hand(player)
-
         self.host_turn()
 
     def play_hand(self, player, hand_index=0):
         while not self.is_turn_over(player, hand_index):
             action = self.get_player_action(player)
             if action == HIT_ACTION:
-                new_card = self.hit_card()
-                player.hit(new_card, hand_index)
-                print(f"{player.name}'s hand: {player.print_hand(hand_index)}")
+                self.handle_hit(player, hand_index)
             elif action == STAND_ACTION:
+                print("\n")
                 break
 
     def offer_double_down(self, player):
         while True:
             try:
-                response = input(f"{player.name}, Do you want to Double Down? (yes/no): ").strip().lower()
+                response = input(f"{player.name}, do you want to Double Down? (yes/no): ").strip().lower()
                 if response not in ["yes", "no"]:
                     raise ValueError(INVALID_ANSWER_MESSAGE)
 
                 if response == "yes":
                     player.double_down()
                     print(f"{player.name} has doubled down. New bet: ${player.bets[0]}")
-                    print("Drawing card...")
-                    new_card = self.hit_card()
-                    player.hit(new_card)
-                    print("\n")
+                    self.handle_hit(player)
                     return True
 
                 if response == "no":
@@ -193,6 +189,14 @@ class Blackjack:
             if action in [HIT_ACTION, STAND_ACTION]:
                 return action
             print(INVALID_OPTION_MESSAGE)
+
+    def handle_hit(self, player, hand_index=0):
+            print(DRAW_CARD_MESSAGE)
+            print("\n")
+            new_card = self.hit_card()
+            player.hit(new_card, hand_index)
+            print(f"{player.name}'s hand: {player.print_hand(hand_index)}")
+            print("\n")
     
     def host_turn(self):
         while self.host.must_hit():
@@ -265,7 +269,6 @@ class Blackjack:
         return hand_value >= 21
 
     def print_results(self):
-        self.print_hands()
         print("Round End:")
         print(f"Host reveals hand: {self.host.print_hand()}")
         host_value = self.host.calculate_hand_value()
@@ -282,3 +285,6 @@ class Blackjack:
                 print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
             else:
                 print(TIE_MESSAGE.format(player.name, self.host.name))
+        
+        print(SEPARATOR)
+        print("\n")
