@@ -143,7 +143,7 @@ class Blackjack:
             if action == HIT_ACTION:
                 new_card = self.hit_card()
                 player.hit(new_card, hand_index)
-                player.print_hand(hand_index)
+                print(f"{player.name}'s hand: {player.print_hand(hand_index)}")
             elif action == STAND_ACTION:
                 break
 
