@@ -12,9 +12,9 @@ class Player:
             hand = self.hands[hand_index]
             hand_representation = ' '.join(f"{card.rank}{card.suit}" for card in hand)
             hand_value = self.calculate_hand_value(hand_index)
-            print(f"{hand_representation} (Hand Value: {hand_value})")
+            return f"{hand_representation} (Hand Value: {hand_value})"
         else:
-            print("Invalid hand index")
+            return "Invalid hand index"
 
     def place_bet(self, amount, hand_index=0):
         # Place a bet on a specific hand if the player has enough balance
