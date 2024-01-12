@@ -10,6 +10,7 @@ SKIP_ROUND_MESSAGE = "{} is skipping this round.\n"
 INSUFFICIENT_FUNDS_MESSAGE = "{} cannot play due to insufficient funds.\n"
 NEW_DECK_MESSAGE = "New deck is being used"
 INVALID_OPTION_MESSAGE = "Invalid option. Please enter 'h' for hit or 's' for stand."
+INVALID_ANSWER_MESSAGE ="Please answer with 'yes' or 'no'."
 INVALID_BET_MESSAGE = "Invalid bet. Please enter a number between 0 and {}."
 INVALID_INPUT_MESSAGE = "Invalid input. Please enter a number."
 EXIT_DUE_TO_FUNDS_MESSAGE = "{} has exited the game due to insufficient funds.\n"
@@ -97,27 +98,37 @@ class Blackjack:
         # Players' turns
         for player in self.active_players:
             # Check and offer double down
-            if player.can_double_down():
-                if self.offer_double_down(player):
-                    continue
+            if self.offer_split(player):
+                for hand_index in range(len(player.hands)):
+                    print(f"Playing hand {hand_index + 1} for {player.name}")
+                    self.play_hand(player, hand_index)
+                continue  # Move to the next player after handling split hands
 
-            while not self.is_turn_over(player):
-                action = self.get_player_action(player)
-                if action == HIT_ACTION:
-                    new_card = self.hit_card()
-                    player.hit(new_card)
-                    player.print_hand()
-                elif action == STAND_ACTION:
-                    break
+            # Offer double down if possible and no split was done
+            if self.offer_double_down(player):
+                continue # Double down ends the player's turn
+        
+            # Regular play if no split or double down
+            self.play_hand(player)
 
         self.host_turn()
+
+    def play_hand(self, player, hand_index=0):
+        while not self.is_turn_over(player, hand_index):
+            action = self.get_player_action(player)
+            if action == HIT_ACTION:
+                new_card = self.hit_card()
+                player.hit(new_card, hand_index)
+                player.print_hand(hand_index)
+            elif action == STAND_ACTION:
+                break
 
     def offer_double_down(self, player):
         while True:
             try:
                 response = input(f"{player.name}, Do you want to Double Down? (yes/no): ").strip().lower()
                 if response not in ["yes", "no"]:
-                    raise ValueError("Please answer with 'yes' or 'no'.")
+                    raise ValueError(INVALID_ANSWER_MESSAGE)
 
                 if response == "yes":
                     player.double_down()
@@ -130,6 +141,24 @@ class Blackjack:
                 if response == "no":
                     return False
 
+            except ValueError as e:
+                print(e)
+
+    def offer_split(self, player):
+        while True:
+            try:
+                response = input(f"{player.name}, Do you want to Split? (yes/no): ").strip.lower()
+                if response not in ["yes", "no"]:
+                    raise ValueError(INVALID_ANSWER_MESSAGE)
+            
+                if response == "yes":
+                    player.split()
+                    print(f"{player.name} has split.")
+                    return True
+                
+                if response == "no":
+                    return False
+                
             except ValueError as e:
                 print(e)
 
@@ -206,8 +235,8 @@ class Blackjack:
             # Reset the player's bet for the next round
             player.reset_bet()
     
-    def is_turn_over(self, player):
-        hand_value = player.calculate_hand_value()
+    def is_turn_over(self, player, hand_index=0):
+        hand_value = player.calculate_hand_value(hand_index)
         return hand_value >= 21
 
     def print_results(self):

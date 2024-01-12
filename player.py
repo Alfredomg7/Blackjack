@@ -6,12 +6,15 @@ class Player:
         self.balance = initial_balance
         self.bets = [0]  # Initialize player bets as a list
 
-    def print_hand(self):
-        # Prints each hand of the player along with its total value
-        for index, hand in enumerate(self.hands):
+    def print_hand(self, hand_index=0):
+        # Prints the hand along with its total value
+        if hand_index < len(self.hands):
+            hand = self.hands[hand_index]
             hand_representation = ' '.join(f"{card.rank}{card.suit}" for card in hand)
-            hand_value = self.calculate_hand_value(hand_index=index)
-            print(f"Hand {index + 1}: {hand_representation} (Hand Value: {hand_value})")
+            hand_value = self.calculate_hand_value(hand_index)
+            print(f"Hand {hand_index + 1}: {hand_representation} (Hand Value: {hand_value})")
+        else:
+            print("Invalid hand index")
 
     def place_bet(self, amount, hand_index=0):
         # Place a bet on a specific hand if the player has enough balance
@@ -40,7 +43,8 @@ class Player:
     def split(self, hand_index=0):
         # Perform a split if the hand can be split
         if self.can_split(hand_index):
-            new_hand = self.hands[hand_index].pop(0)
+            card_to_split = self.hands[hand_index].pop(0)
+            new_hand = [card_to_split]
             new_bet = self.bets[hand_index]
             self.hands.append(new_hand)
             self.bets.append(new_bet)
