@@ -98,14 +98,14 @@ class Blackjack:
         # Players' turns
         for player in self.active_players:
             # Check and offer double down
-            if self.offer_split(player):
+            if player.can_split() and self.offer_split(player):
                 for hand_index in range(len(player.hands)):
                     print(f"Playing hand {hand_index + 1} for {player.name}")
                     self.play_hand(player, hand_index)
                 continue  # Move to the next player after handling split hands
 
             # Offer double down if possible and no split was done
-            if self.offer_double_down(player):
+            if  player.can_double_down() and self.offer_double_down(player):
                 continue # Double down ends the player's turn
         
             # Regular play if no split or double down
@@ -147,7 +147,7 @@ class Blackjack:
     def offer_split(self, player):
         while True:
             try:
-                response = input(f"{player.name}, Do you want to Split? (yes/no): ").strip.lower()
+                response = input(f"{player.name}, Do you want to Split? (yes/no): ").strip().lower()
                 if response not in ["yes", "no"]:
                     raise ValueError(INVALID_ANSWER_MESSAGE)
             
