@@ -12,7 +12,7 @@ class Player:
             hand = self.hands[hand_index]
             hand_representation = ' '.join(f"{card.rank}{card.suit}" for card in hand)
             hand_value = self.calculate_hand_value(hand_index)
-            print(f"Hand {hand_index + 1}: {hand_representation} (Hand Value: {hand_value})")
+            print(f"{hand_representation} (Hand Value: {hand_value})")
         else:
             print("Invalid hand index")
 
