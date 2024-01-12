@@ -1,8 +1,6 @@
 import unittest
 from blackjack import Blackjack
 from deck import Deck, Card
-from collections import namedtuple
-
 
 class TestDeck(unittest.TestCase):
     def setUp(self):
@@ -47,12 +45,22 @@ class TestPlayerActions(unittest.TestCase):
         initial_hand_value = self.player.calculate_hand_value()
 
         # Simulate player hitting
-        new_card = self.game.deck.hit()
-        self.player.hit(new_card)
+        self.game.handle_hit(self.player)
         hand = self.player.hands[0]
 
         self.assertEqual(len(hand), initial_hand_count + 1, "Player should have one more card after hitting")
         self.assertNotEqual(self.player.calculate_hand_value(), initial_hand_value, "Hand value should change after hitting")
+
+    def test_stand_action(self):
+        initial_hand_count = len(self.player.hands[0])
+        initial_hand_value = self.player.calculate_hand_value()
+
+        # Simulate player standing
+        self.game.handle_stand(self.player)
+        hand = self.player.hands[0]
+
+        self.assertEqual(len(hand), initial_hand_count, "Player should have same number of cards after standing")
+        self.assertEqual(self.player.calculate_hand_value(), initial_hand_value, "Hand value should not change after standing")
 
 class TestSplit(unittest.TestCase):
     def setUp(self):
