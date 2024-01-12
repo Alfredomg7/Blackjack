@@ -4,6 +4,7 @@ from host import Host
 
 # Constants
 WELCOME_MESSAGE = "Welcome to Blackjack!"
+DEAL_CARDS_MESSAGE = "Dealing cards..."
 GAME_OVER_NO_FUNDS_MESSAGE = "All players have insufficient funds to continue. Game over."
 NO_ACTIVE_PLAYERS_MESSAGE = "No active players for this round.\n"
 SKIP_ROUND_MESSAGE = "{} is skipping this round.\n"
@@ -21,6 +22,7 @@ PLAYER_BALANCE_MESSAGE = "{}'s balance: ${}\n"
 HOST_HAND_MESSAGE = "{}'s hand: {} ?\n"
 HIT_ACTION = "h"
 STAND_ACTION = "s"
+SEPARATOR = "-" * 40
 
 class Blackjack:
     def __init__(self, player_names, initial_balance):
@@ -31,19 +33,22 @@ class Blackjack:
 
     def start_game(self):
         self.print_welcome_message()
-        print("-" * 40)
+        print(SEPARATOR)
+        print("\n")
         
         while self.any_player_with_funds():
             # Remove players with zero balance before starting a new round
             self.players = [player for player in self.players if player.balance > 0]
             self.reset_for_new_round()
             
+            print(SEPARATOR)
+
             if self.handle_bets():
                 self.deal_initial_cards()
                 self.play_round()
                 self.update_balances()
                 self.print_results()
-        
+
         print(GAME_OVER_NO_FUNDS_MESSAGE)
 
     def any_player_with_funds(self):
@@ -75,6 +80,7 @@ class Blackjack:
         return True
     
     def deal_initial_cards(self):
+        print(DEAL_CARDS_MESSAGE)
         for player in self.active_players:
             card_1, card_2 = self.deck.deal()
             player.receive_hand(card_1, card_2)
@@ -84,7 +90,7 @@ class Blackjack:
         self.host.receive_hand(host_card_1, host_card_2)
 
         # At this point, all active players and the host have been dealt hands for the round
-        self.print_initial_hands()
+        self.print_hands()
     
     def reset_for_new_round(self):
         for player in self.players:
@@ -132,10 +138,11 @@ class Blackjack:
 
                 if response == "yes":
                     player.double_down()
-                    print(f"{player.name} has doubled down.")
+                    print(f"{player.name} has doubled down. New bet: ${player.bets[0]}")
+                    print("Drawing card...")
                     new_card = self.hit_card()
-                    print("\n")
                     player.hit(new_card)
+                    print("\n")
                     return True
 
                 if response == "no":
@@ -198,12 +205,11 @@ class Blackjack:
         
         return self.deck.hit()
 
-    def print_initial_hands(self):
+    def print_hands(self):
         for player in self.players:
-            print(f"{player.name}'s hands: ", end="")
-            player.print_hand()
+            print(f"{player.name}'s hand: {player.print_hand()}")
         
-        print(f"{self.host.name}'s hand: {self.host.hands[0][0][1]}{self.host.hands[0][0][0]} ?")
+        print(HOST_HAND_MESSAGE.format(self.host.name, self.host.hands[0][0][1] + self.host.hands[0][0][0]), end="")
         print("\n")
 
     def update_balances(self):
@@ -241,14 +247,9 @@ class Blackjack:
         return hand_value >= 21
 
     def print_results(self):
-        for player in self.players:
-            print(f"{player.name}'s hand: ", end="")
-            player.print_hand()
-
-        print(HOST_HAND_MESSAGE.format(self.host.name, self.host.hands[0][0][1] + self.host.hands[0][0][0]), end="")
-        self.host.print_hand()
-        print("\n")
-
+        self.print_hands()
+        print("Round End:")
+        print(f"Host reveals hand: {self.host.print_hand()}")
         host_value = self.host.calculate_hand_value()
 
         for player in self.players:
@@ -265,7 +266,3 @@ class Blackjack:
                 print(TIE_MESSAGE.format(player.name, self.host.name))
             
             print(PLAYER_BALANCE_MESSAGE.format(player.name, player.balance))
-
-
-
-        
