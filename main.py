@@ -13,6 +13,7 @@ def get_initial_balance():
     while True:
         try:
             initial_balance = int(input("Enter initial balance for players: "))
+            print("\n")
             if initial_balance < 1:
                 print("Initial balance must be a positive integer.")
             else:

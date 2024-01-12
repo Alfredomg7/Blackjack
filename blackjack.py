@@ -3,7 +3,7 @@ from player import Player
 from host import Host
 
 # Constants
-WELCOME_MESSAGE = "Welcome to Blackjack!\n"
+WELCOME_MESSAGE = "Welcome to Blackjack!"
 GAME_OVER_NO_FUNDS_MESSAGE = "All players have insufficient funds to continue. Game over."
 NO_ACTIVE_PLAYERS_MESSAGE = "No active players for this round.\n"
 SKIP_ROUND_MESSAGE = "{} is skipping this round.\n"
@@ -31,12 +31,12 @@ class Blackjack:
 
     def start_game(self):
         self.print_welcome_message()
+        print("-" * 40)
         
         while self.any_player_with_funds():
             # Remove players with zero balance before starting a new round
             self.players = [player for player in self.players if player.balance > 0]
             self.reset_for_new_round()
-            print("-" * 40)
             
             if self.handle_bets():
                 self.deal_initial_cards()
@@ -183,6 +183,7 @@ class Blackjack:
         while True:
             try:
                 bet = int(input(f"{player.name}, how much do you want to bet? (0 to exit): "))
+                print("\n")
                 if 0 <= bet <= player.balance:
                     return bet
                 else:
@@ -199,7 +200,7 @@ class Blackjack:
 
     def print_initial_hands(self):
         for player in self.players:
-            print(f"{player.name}'s hand: ", end="")
+            print(f"{player.name}'s hands: ", end="")
             player.print_hand()
         
         print(f"{self.host.name}'s hand: {self.host.hands[0][0][1]}{self.host.hands[0][0][0]} ?")
