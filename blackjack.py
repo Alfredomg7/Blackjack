@@ -65,7 +65,6 @@ class Blackjack:
             if self.handle_bets():
                 self.deal_initial_cards()
                 self.play_round()
-                self.update_balances()
                 self.print_results()
 
         print(GAME_OVER_NO_FUNDS_MESSAGE)
@@ -232,64 +231,45 @@ class Blackjack:
         
         return self.deck.hit()
 
-    def print_hands(self):
+    def print_hands(self, hidden=True):
         for player in self.players:
             print(f"{player.name}'s hand: {player.print_hand()}")
         
-        print(HOST_HAND_MESSAGE.format(self.host.name, self.host.hands[0][0][1] + self.host.hands[0][0][0]), end="")
+        if hidden:
+            print(HOST_HAND_MESSAGE.format(self.host.name, self.host.hands[0][0][1] + self.host.hands[0][0][0]), end="")
+        else:
+            print(f"Host reveals hand: {self.host.print_hand()}")
+        
         print("\n")
 
     def update_balances(self):
         host_value = self.host.calculate_hand_value()
 
-        for player in self.active_players:
+        for player in self.players:
             player_value = player.calculate_hand_value()
-
-            # Player busts
             if player_value > 21:
-                pass
-
-            # Host busts
+                print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
             elif host_value > 21:
+                print(PLAYER_WINS_MESSAGE.format(player.name))
                 player.balance += player.bets[0] * 2
-            
-            # Both player and host are under or equal 21
+            elif player_value > host_value:
+                print(PLAYER_WINS_MESSAGE.format(player.name))
+                player.balance += player.bets[0] * 2
+            elif player_value < host_value:
+                print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
             else:
-                # Player wins
-                if player_value > host_value:
-                    player.balance += player.bets[0] * 2
-                # Host wins
-                elif player_value < host_value:
-                    pass
-                # Tie
-                elif player_value == host_value:
-                    player.balance += player.bets[0] 
-            
+                print(TIE_MESSAGE.format(player.name, self.host.name))
+                player.balance += player.bets[0] 
 
-            # Reset the player's bet for the next round
-            player.reset_bet()
-    
+        player.reset_bet()
+
     def is_turn_over(self, player, hand_index=0):
         hand_value = player.calculate_hand_value(hand_index)
         return hand_value >= 21
 
     def print_results(self):
         print("Round End:")
-        print(f"Host reveals hand: {self.host.print_hand()}")
-        host_value = self.host.calculate_hand_value()
-
-        for player in self.players:
-            player_value = player.calculate_hand_value()
-            if player_value > 21:
-                print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
-            elif host_value > 21:
-                print(PLAYER_WINS_MESSAGE.format(player.name))
-            elif player_value > host_value:
-                print(PLAYER_WINS_MESSAGE.format(player.name))
-            elif player_value < host_value:
-                print(PLAYER_BUSTS_MESSAGE.format(player.name, self.host.name))
-            else:
-                print(TIE_MESSAGE.format(player.name, self.host.name))
-        
+        self.print_hands(False)
+        self.update_balances()
         print(SEPARATOR)
         print("\n")
